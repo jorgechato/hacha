@@ -40,7 +40,7 @@ class Sauce():
         self.text = io.open(self.filename, encoding='utf-8').read().lower()
         print('corpus length:', len(self.text))
 
-        # list all the differents characters in the django project
+        # list all the differents characters in the file project
         self.chars = sorted(list(set(self.text)))
         print('total chars:', len(self.chars))
 

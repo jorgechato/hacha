@@ -102,5 +102,6 @@ db.sqlite3
 
 #jenkins and AI data
 data
+out
 #Test results
 **/*.xml
