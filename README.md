@@ -20,7 +20,7 @@ $ docker run -d \
 Concatenate all files you have written splitted by language in a single file. You
 can use the following command:
 ```zsh
-$ cat <projects-folder>/**/*.py > ./data/python.txt
+$ cat <projects-folder>/**/*.py > ./data/python.npz
 ```
 ### Train
 ```zsh
@@ -32,9 +32,8 @@ $ python train.py -h
 ```zsh
 .
 ├── data
-│   └── train.txt
+│   └── python.npz
 ├── Dockerfile
-├── out
 ├── README.md
 ├── requirements.txt
 ├── sauce
@@ -44,10 +43,7 @@ $ python train.py -h
 │   │   ├── bidirectional.py
 │   │   ├── __init__.py
 │   │   └── text_generation.py
-│   ├── __pycache__
-│   │   ├── data.cpython-35.pyc
-│   │   ├── __init__.cpython-35.pyc
-│   │   └── utils.cpython-35.pyc
 │   └── utils.py
-└── train.py
+├── train.py
+└── weights
 ```

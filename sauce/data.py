@@ -13,10 +13,10 @@ import io
 
 class Data():
     # hyperparameters
-    maxlen = 40
-    step = 3
+    maxlen     = 100
+    batch_size = 32
 
-    sentences = []
+    sentences  = []
     next_chars = []
 
     def __init__(self, **kwargs):
@@ -42,7 +42,7 @@ class Data():
         self.indices_char = dict((i, c) for i, c in enumerate(self.chars))
 
         # cut the text in semi-redundant sequences of maxlen characters
-        for i in range(0, len(self.text) - self.maxlen, self.step):
+        for i in range(0, len(self.text) - self.maxlen, self.batch_size):
             self.sentences.append(self.text[i: i + self.maxlen])
             self.next_chars.append(self.text[i + self.maxlen])
         print('nb sequences:', len(self.sentences))
@@ -55,4 +55,12 @@ class Data():
         character at a time, allowing each character a chance to be learned from
         the 100 characters that preceded it (except the first 100 characters of course).
         """
-        pass
+        print('Vectorization...')
+        x = np.zeros((len(self.sentences), self.maxlen, len(self.chars)), dtype=np.bool)
+        y = np.zeros((len(self.sentences), len(self.chars)), dtype=np.bool)
+        for i, sentence in enumerate(self.sentences):
+            for t, char in enumerate(sentence):
+                x[i, t, self.char_indices[char]] = 1
+            y[i, self.char_indices[self.next_chars[i]]] = 1
+
+        return x, y

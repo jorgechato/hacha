@@ -103,5 +103,6 @@ db.sqlite3
 #jenkins and AI data
 data
 out
+weights
 #Test results
 **/*.xml

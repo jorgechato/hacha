@@ -14,6 +14,7 @@ import shutil
 
 from sauce.data import Data
 from sauce.utils import *
+from sauce.LSTM.text_generation import Generate
 
 
 CWD = os.getcwd() + "/"
@@ -24,6 +25,13 @@ parser.add_argument(
         help     = "Type of neural network you want to train (Default: bidirectional).",
         metavar  = "NAME",
         default  = "bidirectional",
+        )
+parser.add_argument(
+        "--epochs",
+        help     = "Number of epochs to train the neural network (Default: 1).",
+        metavar  = "NUMBER",
+        default  = 1,
+        type     = int,
         )
 required = parser.add_argument_group('required arguments')
 required.add_argument(
@@ -43,6 +51,33 @@ if len(sys.argv) == 1:
     print_argument_error()
 
 
-print('Loading data...')
-data = Data(filename=args.data)
-data.parse_data()
+if args.neural == "bidirectional":
+    print('Loading data...')
+    data = Data(
+            filename   = args.data,
+            maxlen     = 100,
+            batch_size = 32,
+            )
+    data.parse_data()
+elif args.neural == "text_generation":
+    print('Loading data...')
+    data = Data(
+            filename   = args.data,
+            maxlen     = 40,
+            batch_size = 3,
+            )
+    data.parse_data()
+    x, y = data.load_data()
+
+    generate = Generate(
+            maxlen       = data.maxlen,
+            chars        = data.chars,
+            char_indices = data.char_indices,
+            text         = data.text,
+            indices_char = data.indices_char,
+            epochs       = args.epochs
+            )
+
+    print('Build model...')
+    generate.compile()
+    generate.train(x, y)
