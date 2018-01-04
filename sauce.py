@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-train CLI
+main CLI
 
 Author:  Jorge Chato
 Repo:    github.com/jorgechato/hacha
@@ -30,10 +30,18 @@ parser.add_argument(
         "--epochs",
         help     = "Number of epochs to train the neural network (Default: 1).",
         metavar  = "NUMBER",
-        default  = 1,
+        default  = 20,
         type     = int,
         )
 required = parser.add_argument_group('required arguments')
+required.add_argument(
+        "-w",
+        "--weights",
+        help     = "Add weights file to use the AI.",
+        metavar  = "FILENAME",
+        required = True,
+        type     = str,
+        )
 required.add_argument(
         "-d",
         "--data",
@@ -78,6 +86,7 @@ elif args.neural == "text_generation":
             epochs       = args.epochs
             )
 
-    print('Build model...')
-    generate.compile()
-    generate.train(x, y)
+    print('Running...')
+    generate.load_weights(args.weights)
+    predict = generate.run()
+    print(predict)

@@ -22,6 +22,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Activation
 from keras.layers import LSTM
 from keras.optimizers import RMSprop
+import keras.preprocessing.text
 
 
 model = Sequential()
@@ -37,10 +38,14 @@ class Generate():
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def compile(self):
+    def create_neurons(self):
         model.add(LSTM(128, input_shape=(self.maxlen, len(self.chars))))
         model.add(Dense(len(self.chars)))
         model.add(Activation('softmax'))
+
+
+    def compile(self):
+        self.create_neurons()
 
         optimizer = RMSprop(lr=0.01)
         model.compile(loss='categorical_crossentropy', optimizer=optimizer)
@@ -99,3 +104,23 @@ class Generate():
         preds = exp_preds / np.sum(exp_preds)
         probas = np.random.multinomial(1, preds, 1)
         return np.argmax(probas)
+
+    def load_weights(self, path):
+        self.create_neurons()
+        model.load_weights(path)
+
+    def run(self):
+        text = np.array(["from django import routes"])
+        tk = keras.preprocessing.text.Tokenizer(
+                nb_words = 2000,
+                filters  = keras.preprocessing.text.base_filter(),
+                lower    = True,
+                split    = " ",
+                )
+        tk.fit_on_texts(text)
+
+        return model.predict(
+                np.array(
+                    tk.texts_to_sequences(text)
+                    )
+                )
