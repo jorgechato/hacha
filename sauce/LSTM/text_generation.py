@@ -9,7 +9,7 @@ If you try this script on new data, make sure your corpus has at least ~100k
 characters. ~1M is better.
 
 Author:  Jorge Chato
-Repo:    github.com/jorgechato/hacha
+Repo:    github.com/jorgechato/sauce
 Web:     jorgechato.com
 """
 from __future__ import print_function
@@ -17,12 +17,13 @@ import numpy as np
 import random
 import sys
 import io
-
 from keras.models import Sequential
 from keras.layers import Dense, Activation
 from keras.layers import LSTM
 from keras.optimizers import RMSprop
 import keras.preprocessing.text
+
+from sauce.data import prepare_input
 
 
 model = Sequential()
@@ -31,8 +32,9 @@ model = Sequential()
 class Generate():
     # hyperparameters
     batch_size  = 128
-    epochs      = 1
+    epochs      = 20
     temperature = 1.0
+    validation_split = 0.05 # 5% data for validation
 
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
@@ -60,8 +62,9 @@ class Generate():
             model.fit(
                     x,
                     y,
-                    batch_size = self.batch_size,
-                    epochs     = self.epochs,
+                    validation_split = self.validation_split,
+                    batch_size       = self.batch_size,
+                    epochs           = self.epochs,
                     )
 
             start_index = random.randint(0, len(self.text) - self.maxlen - 1)
@@ -109,18 +112,36 @@ class Generate():
         self.create_neurons()
         model.load_weights(path)
 
-    def run(self):
-        text = np.array(["from django import routes"])
-        tk = keras.preprocessing.text.Tokenizer(
-                nb_words = 2000,
-                filters  = keras.preprocessing.text.base_filter(),
-                lower    = True,
-                split    = " ",
-                )
-        tk.fit_on_texts(text)
+    def sample(self, preds, top_n=3):
+        """
+        This function allows us to ask our model what are the next n most
+        probable characters.
+        """
+        preds = np.asarray(preds).astype('float64')
+        preds = np.log(preds)
+        exp_preds = np.exp(preds)
+        preds = exp_preds / np.sum(exp_preds)
 
-        return model.predict(
-                np.array(
-                    tk.texts_to_sequences(text)
-                    )
-                )
+        return heapq.nlargest(top_n, range(len(preds)), preds.take)
+
+    def predict(self, text):
+        """
+        This function predicts next character until space is predicted (you can
+        extend that to punctuation symbols). It does so by repeatedly preparing
+        input, asking our model for predictions and sampling from them.
+        """
+        original_text = text
+        generated = text
+        completion = ''
+        while True:
+            x = prepare_input(text, self.chars, self.char_indices, self.maxlen)
+
+            preds = model.predict(x, verbose=0)[0]
+            next_index = self.sample(preds, top_n=1)[0]
+            next_char = indices_char[next_index]
+            text = text[1:] + next_char
+            completion += next_char
+
+            if len(original_text + completion) + 2 > len(original_text) and next_char == ' ':
+                return completion
+

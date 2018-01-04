@@ -5,7 +5,7 @@ Trains a Bidirectional LSTM on the IMDB sentiment classification task.
 Output after 4 epochs on CPU: ~0.8146
 
 Author:  Jorge Chato
-Repo:    github.com/jorgechato/hacha
+Repo:    github.com/jorgechato/sauce
 Web:     jorgechato.com
 """
 from __future__ import print_function

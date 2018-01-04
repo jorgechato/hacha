@@ -3,7 +3,7 @@
 Parse and prepare data
 
 Author:  Jorge Chato
-Repo:    github.com/jorgechato/hacha
+Repo:    github.com/jorgechato/sauce
 Web:     jorgechato.com
 """
 from __future__ import print_function
@@ -23,22 +23,33 @@ class Data():
         for key, value in kwargs.items():
             setattr(self, key, value)
 
+    def get_chars(self, filename=None):
+        if not filename:
+            filename = self.filename
+        # load the file with all the code
+        self.text = io.open(filename, encoding='utf-8').read().lower()
+        print('corpus length:', len(self.text))
+
+        # list all the differents characters in the file project
+        self.chars = sorted(list(set(self.text)))
+        print('total chars:', len(self.chars))
+        return self.chars
+
+    def get_char_indicies(self, chars=None):
+        if not chars:
+            chars = self.chars
+
+        return dict((c, i) for i, c in enumerate(chars))
+
     def parse_data(self):
         """
         Load the ASCII text for the file into memory and convert all of the
         characters to lowercase to reduce the vocabulary that the network must
         learn. Creating a map of each character to a unique integer.
         """
-        # load the file with all the code
-        self.text = io.open(self.filename, encoding='utf-8').read().lower()
-        print('corpus length:', len(self.text))
-
-        # list all the differents characters in the file project
-        self.chars = sorted(list(set(self.text)))
-        print('total chars:', len(self.chars))
-
+        self.get_chars()
         # map chars
-        self.char_indices = dict((c, i) for i, c in enumerate(self.chars))
+        self.char_indices = self.get_char_indicies()
         self.indices_char = dict((i, c) for i, c in enumerate(self.chars))
 
         # cut the text in semi-redundant sequences of maxlen characters
@@ -64,3 +75,15 @@ class Data():
             y[i, self.char_indices[self.next_chars[i]]] = 1
 
         return x, y
+
+
+def prepare_input(text, chars, char_indices, maxlen):
+    """
+    Prepare Input to predict the next word. Convert a text input to a 3D
+    numpy array (required as the LSTM model is build)
+    """
+    x = np.zeros((1, maxlen, len(chars)))
+    for t, char in enumerate(text):
+        x[0, t, char_indices[char]] = 1.
+
+    return x

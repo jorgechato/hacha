@@ -3,7 +3,7 @@
 Utils file
 
 Author:  Jorge Chato
-Repo:    github.com/jorgechato/hacha
+Repo:    github.com/jorgechato/sauce
 Web:     jorgechato.com
 """
 import sys
