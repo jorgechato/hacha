@@ -6,71 +6,48 @@ Author:  Jorge Chato
 Repo:    github.com/jorgechato/sauce
 Web:     jorgechato.com
 """
-import sys
 import os
-import argparse
 from flask import Flask
-from flask import jsonify, request, abort
+from flask import jsonify, request, abort, session
+from flask.views import MethodView
 
 from sauce.data import Data
 from sauce.utils import *
 from sauce.LSTM.text_generation import Generate
 
 app = Flask(__name__)
-generate = None
+global generate, graph
+generate, graph = Generate().load()
 
 
-@app.route("/generate", methods=["POST"])
-def generate_word():
-    if not request.json:
-        abort(400)
+class ModelLoader(MethodView):
 
-    print('Running...')
-    prediction = generate.predict(request.json["input"].lower())
-    return jsonify(next=prediction)
+    def __init__(self):
+        """Initialize ModelLoader class."""
+        pass
 
-@app.route("/generate/reload/<data>/<weights>", methods=["POST"])
-def load_generate_config(data, weights):
-    chars        = Data().get_chars(data)
-    char_indices = Data().get_char_indicies(chars)
+    def post(self):
+        if not request.json:
+            abort(400)
 
-    generate = Generate(
-            maxlen       = 40,
-            chars        = chars,
-            char_indices = char_indices,
-            )
-    print('Loading weights...')
-    generate.load_weights(weights)
-    return
+        print('Running...')
+        seq = request.json["input"][-40:].lower()
+
+        with graph.as_default():
+            prediction = generate.predict(seq, 5)
+            print(seq)
+            print(prediction)
+            print()
+
+            return jsonify(
+                    input = seq,
+                    next  = prediction,
+                    )
 
 
 if __name__ == '__main__':
-    CWD = os.getcwd() + "/"
+    port = int(os.environ.get('PORT', 5000))
 
-    parser = argparse.ArgumentParser()
-    required = parser.add_argument_group('required arguments')
-    required.add_argument(
-            "-w",
-            "--weights",
-            help     = "Add weights file to use the AI.",
-            metavar  = "FILENAME",
-            required = True,
-            type     = str,
-            )
-    required.add_argument(
-            "-d",
-            "--data",
-            help     = "Add data file to train the AI.",
-            metavar  = "FILENAME",
-            required = True,
-            type     = str,
-            )
+    app.add_url_rule('/predict', view_func=ModelLoader.as_view('predict'))
 
-    print_info()
-    args = parser.parse_args()
-
-    if len(sys.argv) == 1:
-        print_argument_error()
-
-    load_generate_config(args.data, args.weights)
-    app.run(host= '0.0.0.0',debug=True)
+    app.run(host='0.0.0.0', port=port)

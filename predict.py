@@ -67,7 +67,7 @@ elif args.neural == "text_generation":
     print('Loading weights...')
     generate.load_weights(args.weights)
     print('Running...')
-    seq = "from django import time"[:40].lower()
+    seq = "It is not a lack of love, but a lack of friendship that makes unhappy marriages."[:40].lower()
     print(seq)
     print(generate.predict(seq, 5))
     print()

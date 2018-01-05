@@ -30,7 +30,7 @@ parser.add_argument(
         "--epochs",
         help     = "Number of epochs to train the neural network (Default: 1).",
         metavar  = "NUMBER",
-        default  = 1,
+        default  = 20,
         type     = int,
         )
 required = parser.add_argument_group('required arguments')
@@ -79,5 +79,5 @@ elif args.neural == "text_generation":
             )
 
     print('Build model...')
-    generate.compile()
+    generate.create()
     generate.train(x, y)
