@@ -62,9 +62,9 @@ if args.neural == "bidirectional":
 elif args.neural == "text_generation":
     print('Loading data...')
     data = Data(
-            filename   = args.data,
-            maxlen     = 40,
-            batch_size = 3,
+            filename = args.data,
+            maxlen   = 40,
+            step     = 3,
             )
     data.parse_data()
     x, y = data.load_data()

@@ -53,16 +53,21 @@ if len(sys.argv) == 1:
 if args.neural == "bidirectional":
     print('Loading data...')
 elif args.neural == "text_generation":
-    chars        = Data().get_chars(args.data)
-    char_indices = Data().get_char_indicies(chars)
+    data = Data()
+    chars        = data.get_chars(args.data)
+    char_indices = data.get_char_indicies(chars)
+    indices_char = data.get_indicies_char(chars)
 
     generate = Generate(
             maxlen       = 40,
             chars        = chars,
             char_indices = char_indices,
+            indices_char = indices_char,
             )
     print('Loading weights...')
     generate.load_weights(args.weights)
     print('Running...')
-    prediction = generate.predict("from django import routes".lower())
-    print(prediction)
+    seq = "from django import time"[:40].lower()
+    print(seq)
+    print(generate.predict(seq, 5))
+    print()

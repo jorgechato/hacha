@@ -13,8 +13,8 @@ import io
 
 class Data():
     # hyperparameters
-    maxlen     = 100
-    batch_size = 32
+    maxlen = 40
+    step   = 32
 
     sentences  = []
     next_chars = []
@@ -41,6 +41,12 @@ class Data():
 
         return dict((c, i) for i, c in enumerate(chars))
 
+    def get_indicies_char(self, chars=None):
+        if not chars:
+            chars = self.chars
+
+        return dict((i, c) for i, c in enumerate(chars))
+
     def parse_data(self):
         """
         Load the ASCII text for the file into memory and convert all of the
@@ -50,10 +56,10 @@ class Data():
         self.get_chars()
         # map chars
         self.char_indices = self.get_char_indicies()
-        self.indices_char = dict((i, c) for i, c in enumerate(self.chars))
+        self.indices_char = self.get_indicies_char()
 
         # cut the text in semi-redundant sequences of maxlen characters
-        for i in range(0, len(self.text) - self.maxlen, self.batch_size):
+        for i in range(0, len(self.text) - self.maxlen, self.step):
             self.sentences.append(self.text[i: i + self.maxlen])
             self.next_chars.append(self.text[i + self.maxlen])
         print('nb sequences:', len(self.sentences))
