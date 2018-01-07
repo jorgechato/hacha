@@ -88,7 +88,7 @@ def prepare_input(text, chars, char_indices, maxlen):
     Prepare Input to predict the next word. Convert a text input to a 3D
     numpy array (required as the LSTM model is build)
     """
-    x = np.zeros((1, maxlen, len(chars)))
+    x = np.zeros((1, maxlen, chars))
     for t, char in enumerate(text):
         x[0, t, char_indices[char]] = 1.
 

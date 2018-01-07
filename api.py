@@ -17,7 +17,8 @@ from sauce.LSTM.text_generation import Generate
 
 app = Flask(__name__)
 global generate, graph
-generate, graph = Generate().load()
+generate = Generate()
+graph = generate.load()
 
 
 class ModelLoader(MethodView):
@@ -30,14 +31,13 @@ class ModelLoader(MethodView):
         if not request.json:
             abort(400)
 
-        print('Running...')
-        seq = request.json["input"][-40:].lower()
+        seq = " "*40
+        seq += request.json["input"].lower()
+        if len(seq) > 40:
+            seq = seq[-40:]
 
         with graph.as_default():
             prediction = generate.predict(seq, 5)
-            print(seq)
-            print(prediction)
-            print()
 
             return jsonify(
                     input = seq,
@@ -50,4 +50,6 @@ if __name__ == '__main__':
 
     app.add_url_rule('/predict', view_func=ModelLoader.as_view('predict'))
 
+    # If you are using debug=True it might broadcast a "failed to create cublas
+    # handle: CUBLAS_STATUS_NOT_INITIALIZED" error
     app.run(host='0.0.0.0', port=port)

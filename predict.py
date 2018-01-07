@@ -20,23 +20,15 @@ CWD = os.getcwd() + "/"
 parser = argparse.ArgumentParser()
 parser.add_argument(
         "--neural",
-        help     = "Type of neural network you want to train (Default: bidirectional).",
+        help     = "Type of neural network you want to train (Default: text_generation).",
         metavar  = "NAME",
-        default  = "bidirectional",
+        default  = "text_generation",
         )
 required = parser.add_argument_group('required arguments')
 required.add_argument(
-        "-w",
-        "--weights",
-        help     = "Add weights file to use the AI.",
-        metavar  = "FILENAME",
-        required = True,
-        type     = str,
-        )
-required.add_argument(
-        "-d",
-        "--data",
-        help     = "Add data file to train the AI.",
+        "-i",
+        "--input",
+        help     = "Input to predict",
         metavar  = "FILENAME",
         required = True,
         type     = str,
@@ -53,21 +45,11 @@ if len(sys.argv) == 1:
 if args.neural == "bidirectional":
     print('Loading data...')
 elif args.neural == "text_generation":
-    data = Data()
-    chars        = data.get_chars(args.data)
-    char_indices = data.get_char_indicies(chars)
-    indices_char = data.get_indicies_char(chars)
-
-    generate = Generate(
-            maxlen       = 40,
-            chars        = chars,
-            char_indices = char_indices,
-            indices_char = indices_char,
-            )
     print('Loading weights...')
-    generate.load_weights(args.weights)
+    generate = Generate()
+    generate.load()
     print('Running...')
-    seq = "It is not a lack of love, but a lack of friendship that makes unhappy marriages."[:40].lower()
+    seq = args.input[-40:].lower()
     print(seq)
     print(generate.predict(seq, 5))
     print()
