@@ -112,7 +112,7 @@ class Generate():
         """
         Load model, weights and neural network without the raw data.
         """
-        json_file = open(json_model,'r')
+        json_file = open(json_model,'r', encoding="utf8")
         loaded_model_json = json_file.read()
         json_file.close()
         loaded_model = model_from_json(loaded_model_json)
@@ -126,7 +126,7 @@ class Generate():
         graph = tf.get_default_graph()
         self.history = pickle.load(open(history, "rb"))
 
-        info_data = json.load(open(info,'r'))
+        info_data = json.load(open(info,'r', encoding="utf8"))
         for key, value in info_data.items():
             setattr(self, key, value)
         self.indices_char = {int(k):v for k,v in self.indices_char.items()}
