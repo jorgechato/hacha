@@ -24,9 +24,9 @@ import numpy as np
 np.random.seed(42)
 import tensorflow as tf
 tf.set_random_seed(42)
-from keras.models import Sequential, model_from_json
-from keras.layers import Dense, Activation, LSTM
-from keras.optimizers import RMSprop
+from tensorflow.python.keras.models import Sequential, model_from_json
+from tensorflow.python.keras.layers import Dense, Activation, LSTM
+from tensorflow.python.keras.optimizers import RMSprop
 
 from sauce.data import prepare_input
 
